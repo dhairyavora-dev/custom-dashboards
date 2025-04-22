@@ -2,22 +2,14 @@ import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
 import SaveChartModal from './SaveChartModal';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Save, Plus, Bell } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Chart, ChartType } from '@/types/dashboard';
 import EmptyDashboard from './EmptyDashboard';
 import SampleChartCard from './SampleChartCard';
 import { useToast } from '@/hooks/use-toast';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import CreateDashboardModal from './CreateDashboardModal';
 import SubscriptionModal from './SubscriptionModal';
+import SystemDashboardHeader from './SystemDashboardHeader';
+import CustomDashboardHeader from './CustomDashboardHeader';
 
 const Dashboard: React.FC = () => {
   const { currentDashboard, renameDashboard } = useDashboard();
@@ -118,132 +110,27 @@ const Dashboard: React.FC = () => {
     <div className="flex-1">
       {isSystemDashboard ? (
         <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold">{currentDashboard.name}</h1>
-              <p className="text-sm text-muted-foreground">
-                Sample dashboard with analysis examples
-              </p>
-            </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button className="bg-[#00A5EC] hover:bg-[#0095D2] text-white">
-                        <Save className="mr-2 h-4 w-4" />
-                        Save
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-white rounded-md border border-gray-200 shadow-md z-50">
-                      <DropdownMenuItem onClick={() => handleSaveChart('chart')} className="cursor-pointer hover:bg-slate-100">
-                        Save chart to dashboard
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleSaveChart('table')} className="cursor-pointer hover:bg-slate-100">
-                        Save table to dashboard
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Save this chart or table to a custom dashboard</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+          <SystemDashboardHeader
+            dashboard={currentDashboard}
+            onSaveChart={handleSaveChart}
+          />
           <div className="grid grid-cols-1 gap-4">
             <SampleChartCard title="Sample Analysis" />
           </div>
         </div>
       ) : (
         <div className="flex-1 p-6 overflow-y-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              {isEditingTitle ? (
-                <div className="flex items-center">
-                  <Input
-                    ref={titleInputRef}
-                    type="text"
-                    value={newTitle}
-                    onChange={handleTitleChange}
-                    onBlur={handleTitleSave}
-                    onKeyDown={handleTitleKeyDown}
-                    className="text-xl font-bold h-10"
-                  />
-                </div>
-              ) : (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <h1 
-                        className="text-2xl font-bold cursor-pointer hover:text-netcore-blue transition-colors"
-                        onClick={handleEditTitle}
-                      >
-                        {currentDashboard.name}
-                      </h1>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Click to rename your dashboard.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-              <p className="text-sm text-muted-foreground">
-                Last updated: {currentDashboard.updatedAt.toLocaleDateString()}
-              </p>
-            </div>
-            
-            <div className="flex space-x-2">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline">
-                          <Plus className="mr-2 h-4 w-4" />
-                          Add Analysis
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => handleAddAnalysis('funnel')}>
-                          Funnel Analysis
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleAddAnalysis('rfm')}>
-                          RFM Analysis
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleAddAnalysis('cohort')}>
-                          Cohort Analysis
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleAddAnalysis('userPath')}>
-                          User Path Analysis
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleAddAnalysis('behavior')}>
-                          Behavior Analysis
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Add charts from Funnel, RFM, Cohort, User Path, or Behavior dashboards.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" onClick={() => setSubscribeModalOpen(true)}>
-                      <Bell className="mr-2 h-4 w-4" />
-                      Subscribe
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Get email snapshots of this dashboard based on your preferred schedule.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
+          <CustomDashboardHeader
+            dashboard={currentDashboard}
+            isEditingTitle={isEditingTitle}
+            newTitle={newTitle}
+            onEditTitle={handleEditTitle}
+            onTitleChange={handleTitleChange}
+            onTitleSave={handleTitleSave}
+            onTitleKeyDown={handleTitleKeyDown}
+            onAddAnalysis={handleAddAnalysis}
+            onSubscribe={() => setSubscribeModalOpen(true)}
+          />
 
           <SubscriptionModal
             open={subscribeModalOpen}
@@ -258,14 +145,7 @@ const Dashboard: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="bg-muted rounded-lg p-6 text-center">
-              <h3 className="text-lg font-medium mb-2">No charts yet</h3>
-              <p className="text-muted-foreground mb-4">Start by adding an analysis to this dashboard</p>
-              <Button onClick={() => handleAddAnalysis()}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Your First Chart
-              </Button>
-            </div>
+            <EmptyDashboard onAddChart={() => handleAddAnalysis()} />
           )}
           
           {sampleChart && (
