@@ -33,6 +33,8 @@ const Dashboard: React.FC = () => {
   const [saveChartType, setSaveChartType] = useState<'chart' | 'table'>('chart');
 
   const handleEditTitle = () => {
+    if (!currentDashboard) return;
+    
     setNewTitle(currentDashboard.name);
     setIsEditingTitle(true);
     setTimeout(() => {
@@ -46,6 +48,8 @@ const Dashboard: React.FC = () => {
   };
 
   const handleTitleSave = () => {
+    if (!currentDashboard) return;
+    
     if (newTitle && newTitle !== currentDashboard.name) {
       renameDashboard(currentDashboard.id, newTitle);
     }
@@ -101,8 +105,7 @@ const Dashboard: React.FC = () => {
     setSaveModalOpen(true);
   };
 
-  const isSystemDashboard = ['home', 'behavior', 'revenue', 'raman'].includes(currentDashboard.id);
-
+  // Early return if there's no currentDashboard
   if (!currentDashboard) {
     return (
       <div className="flex-1 p-6 flex items-center justify-center">
@@ -110,6 +113,8 @@ const Dashboard: React.FC = () => {
       </div>
     );
   }
+
+  const isSystemDashboard = currentDashboard ? ['home', 'behavior', 'revenue', 'raman'].includes(currentDashboard.id) : false;
 
   return (
     <div className="flex-1">
@@ -221,13 +226,11 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {currentDashboard && (
-            <SubscriptionModal
-              open={subscribeModalOpen}
-              onOpenChange={setSubscribeModalOpen}
-              dashboardName={currentDashboard.name}
-            />
-          )}
+          <SubscriptionModal
+            open={subscribeModalOpen}
+            onOpenChange={setSubscribeModalOpen}
+            dashboardName={currentDashboard.name}
+          />
 
           {currentDashboard.charts.length > 0 ? (
             <div className="grid grid-cols-2 gap-4">
