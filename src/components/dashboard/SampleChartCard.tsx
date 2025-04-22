@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,7 +11,6 @@ import {
 import { Save } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
-import { useToast } from '@/hooks/use-toast';
 
 const sampleData = [
   { name: 'Jan', value: 4000 },
@@ -33,7 +32,7 @@ const SampleChartCard: React.FC<SampleChartCardProps> = ({
   onSaveTable,
 }) => {
   return (
-    <Card className="w-full">
+    <Card className="w-full shadow-md rounded-lg">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-base font-medium">{title}</CardTitle>
         <TooltipProvider>
@@ -46,18 +45,18 @@ const SampleChartCard: React.FC<SampleChartCardProps> = ({
                     Save
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={onSaveChart}>
+                <DropdownMenuContent align="end" className="rounded-md">
+                  <DropdownMenuItem onClick={onSaveChart} className="cursor-pointer hover:bg-slate-100">
                     Save chart to dashboard
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onSaveTable}>
+                  <DropdownMenuItem onClick={onSaveTable} className="cursor-pointer hover:bg-slate-100">
                     Save table to dashboard
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </TooltipTrigger>
-            <TooltipContent>
-              <p>Save this chart or table to a custom dashboard</p>
+            <TooltipContent className="bg-gray-800 text-white">
+              <p>Add this chart or table to your custom dashboard</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -74,6 +73,16 @@ const SampleChartCard: React.FC<SampleChartCardProps> = ({
           </ResponsiveContainer>
         </div>
       </CardContent>
+      <CardFooter className="flex justify-between">
+        <div className="flex flex-col">
+          <span className="text-sm text-muted-foreground">Conversion Rate</span>
+          <span className="text-xl font-semibold">24.8%</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-sm text-muted-foreground">Daily Active Users</span>
+          <span className="text-xl font-semibold">12,542</span>
+        </div>
+      </CardFooter>
     </Card>
   );
 };

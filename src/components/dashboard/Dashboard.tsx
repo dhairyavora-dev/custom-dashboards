@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
@@ -6,9 +5,9 @@ import SaveChartModal from './SaveChartModal';
 import SubscriptionModal from './SubscriptionModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Bell, Plus } from 'lucide-react'; // Added Plus icon import
+import { Bell, Plus } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Chart, ChartType } from '@/types/dashboard'; // Import ChartType
+import { Chart, ChartType } from '@/types/dashboard';
 import EmptyDashboard from './EmptyDashboard';
 import SampleChartCard from './SampleChartCard';
 import { useToast } from '@/hooks/use-toast';
@@ -17,8 +16,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'; // Import dropdown components
-import CreateDashboardModal from './CreateDashboardModal'; // Import CreateDashboardModal
+} from '@/components/ui/dropdown-menu';
+import CreateDashboardModal from './CreateDashboardModal';
 
 const Dashboard: React.FC = () => {
   const { currentDashboard, renameDashboard } = useDashboard();
@@ -92,7 +91,7 @@ const Dashboard: React.FC = () => {
       id: `chart-${Date.now()}`,
       title: 'Sample Analysis',
       description: 'Sample description',
-      type: 'bar' as ChartType, // Cast 'bar' to ChartType
+      type: 'bar' as ChartType,
       displayMode: type === 'chart' ? 'chart' : 'table',
       isFullWidth: false,
       data: {
@@ -105,7 +104,6 @@ const Dashboard: React.FC = () => {
     setSaveModalOpen(true);
   };
 
-  // Early return if there's no currentDashboard
   if (!currentDashboard) {
     return (
       <div className="flex-1 p-6 flex items-center justify-center">
@@ -128,7 +126,7 @@ const Dashboard: React.FC = () => {
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <SampleChartCard
               title="Sample Analysis"
               onSaveChart={() => handleSaveChart('chart')}
@@ -254,7 +252,7 @@ const Dashboard: React.FC = () => {
               chart={sampleChart}
               open={saveModalOpen}
               onOpenChange={setSaveModalOpen}
-              chartType={saveChartType as any}
+              chartType={saveChartType}
             />
           )}
         </div>

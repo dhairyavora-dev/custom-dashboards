@@ -30,4 +30,7 @@ export interface Chart {
 export interface SaveChartOptions {
   saveType: 'analysisOnly' | 'saveAndPin' | 'saveAsNew';
   dashboardId?: string; // Optional if not pinning to dashboard
+  newDashboardName?: string; // For creating a new dashboard
+  chartName?: string; // Name for the chart
+  description?: string; // Description for the chart
 }
