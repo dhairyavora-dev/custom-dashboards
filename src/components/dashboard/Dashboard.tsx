@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
@@ -106,7 +105,7 @@ const Dashboard: React.FC = () => {
   }
 
   // Determine if this is a system dashboard
-  const isSystemDashboard = ['home', 'behavior', 'revenue', 'raman'].includes(currentDashboard.id);
+  const isSystemDashboard = currentDashboard ? ['home', 'behavior', 'revenue', 'raman'].includes(currentDashboard.id) : false;
 
   return (
     <div className="flex-1">
@@ -129,6 +128,7 @@ const Dashboard: React.FC = () => {
             onTitleKeyDown={handleTitleKeyDown}
             onAddAnalysis={handleAddAnalysis}
             onSubscribe={() => setSubscribeModalOpen(true)}
+            isSystemDashboard={isSystemDashboard}
           />
 
           <SubscriptionModal

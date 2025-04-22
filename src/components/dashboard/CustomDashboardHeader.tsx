@@ -22,6 +22,7 @@ interface CustomDashboardHeaderProps {
   onTitleKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onAddAnalysis: (type?: ChartType) => void;
   onSubscribe: () => void;
+  isSystemDashboard?: boolean; // Add this prop to control button visibility
 }
 
 const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
@@ -34,6 +35,7 @@ const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
   onTitleKeyDown,
   onAddAnalysis,
   onSubscribe,
+  isSystemDashboard = false, // Default to false
 }) => {
   const titleInputRef = useRef<HTMLInputElement>(null);
 
@@ -74,56 +76,58 @@ const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
         </p>
       </div>
       
-      <div className="flex space-x-2">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Analysis
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => onAddAnalysis('funnel')}>
-                    Funnel Analysis
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onAddAnalysis('rfm')}>
-                    RFM Analysis
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onAddAnalysis('cohort')}>
-                    Cohort Analysis
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onAddAnalysis('userPath')}>
-                    User Path Analysis
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onAddAnalysis('behavior')}>
-                    Behavior Analysis
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Add charts from Funnel, RFM, Cohort, User Path, or Behavior dashboards.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="outline" onClick={onSubscribe}>
-                <Bell className="mr-2 h-4 w-4" />
-                Subscribe
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Get email snapshots of this dashboard based on your preferred schedule.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
+      {!isSystemDashboard && (
+        <div className="flex space-x-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Analysis
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => onAddAnalysis('funnel')}>
+                      Funnel Analysis
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onAddAnalysis('rfm')}>
+                      RFM Analysis
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onAddAnalysis('cohort')}>
+                      Cohort Analysis
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onAddAnalysis('userPath')}>
+                      User Path Analysis
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onAddAnalysis('behavior')}>
+                      Behavior Analysis
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Add charts from Funnel, RFM, Cohort, User Path, or Behavior dashboards.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" onClick={onSubscribe}>
+                  <Bell className="mr-2 h-4 w-4" />
+                  Subscribe
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Get email snapshots of this dashboard based on your preferred schedule.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      )}
     </div>
   );
 };
