@@ -19,6 +19,7 @@ interface DashboardContextProps {
   saveChart: (chart: Chart, options: SaveChartOptions) => void;
   updateChartOrder: (dashboardId: string, reorderedCharts: Chart[]) => void;
   createDashboard: (name: string) => void;
+  deleteDashboard: (dashboardId: string) => void;
 }
 
 const DashboardContext = createContext<DashboardContextProps | undefined>(undefined);
@@ -311,6 +312,19 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return newDashboard;
   };
 
+  const deleteDashboard = (dashboardId: string) => {
+    const dashboardToDelete = allCustomDashboards.find(d => d.id === dashboardId);
+    
+    if (dashboardToDelete) {
+      setCustomDashboards(prev => prev.filter(d => d.id !== dashboardId));
+      
+      if (currentDashboard?.id === dashboardId) {
+        const firstAvailable = allSystemDashboards[0] || allCustomDashboards.find(d => d.id !== dashboardId);
+        setCurrentDashboard(firstAvailable || null);
+      }
+    }
+  };
+
   return (
     <DashboardContext.Provider
       value={{
@@ -328,7 +342,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         toggleChartWidth,
         saveChart,
         updateChartOrder,
-        createDashboard
+        createDashboard,
+        deleteDashboard
       }}
     >
       {children}

@@ -2,10 +2,12 @@
 import React, { useState } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { Dashboard } from '@/types/dashboard';
-import { Pin, Search } from 'lucide-react';
+import { Pin, Search, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import DeleteDashboardModal from './DeleteDashboardModal';
+import { useToast } from "@/hooks/use-toast";
 
 const Sidebar: React.FC = () => {
   const { 
@@ -18,6 +20,9 @@ const Sidebar: React.FC = () => {
     togglePinDashboard 
   } = useDashboard();
 
+  const [dashboardToDelete, setDashboardToDelete] = useState<Dashboard | null>(null);
+  const { toast } = useToast();
+
   const handleDashboardClick = (dashboard: Dashboard) => {
     setCurrentDashboard(dashboard);
   };
@@ -25,6 +30,22 @@ const Sidebar: React.FC = () => {
   const handlePinClick = (e: React.MouseEvent, dashboardId: string) => {
     e.stopPropagation();
     togglePinDashboard(dashboardId);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, dashboard: Dashboard) => {
+    e.stopPropagation();
+    setDashboardToDelete(dashboard);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (dashboardToDelete) {
+      deleteDashboard(dashboardToDelete.id);
+      toast({
+        title: "Dashboard Deleted",
+        description: `Dashboard '${dashboardToDelete.name}' deleted successfully`,
+      });
+      setDashboardToDelete(null);
+    }
   };
 
   return (
@@ -104,25 +125,46 @@ const Sidebar: React.FC = () => {
                       )}
                     >
                       <span>{dashboard.name}</span>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={(e) => handlePinClick(e, dashboard.id)}
-                              className={cn(
-                                "opacity-0 group-hover:opacity-100 transition-opacity",
-                                dashboard.isPinned ? "opacity-100" : "",
-                                currentDashboard?.id === dashboard.id ? "text-white" : "text-muted-foreground"
-                              )}
-                            >
-                              <Pin className={cn("h-4 w-4", dashboard.isPinned ? "fill-current" : "")} />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Pin dashboards to keep them at the top for quick access.</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <div className="flex items-center gap-1">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={(e) => handleDeleteClick(e, dashboard)}
+                                className={cn(
+                                  "opacity-0 group-hover:opacity-100 transition-opacity",
+                                  currentDashboard?.id === dashboard.id ? "text-white" : "text-muted-foreground"
+                                )}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Delete this dashboard permanently</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={(e) => handlePinClick(e, dashboard.id)}
+                                className={cn(
+                                  "opacity-0 group-hover:opacity-100 transition-opacity",
+                                  dashboard.isPinned ? "opacity-100" : "",
+                                  currentDashboard?.id === dashboard.id ? "text-white" : "text-muted-foreground"
+                                )}
+                              >
+                                <Pin className={cn("h-4 w-4", dashboard.isPinned ? "fill-current" : "")} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Pin dashboards to keep them at the top for quick access.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </button>
                   </div>
                 </li>
@@ -135,6 +177,15 @@ const Sidebar: React.FC = () => {
           </ul>
         </div>
       </nav>
+
+      {dashboardToDelete && (
+        <DeleteDashboardModal
+          dashboardName={dashboardToDelete.name}
+          isOpen={true}
+          onClose={() => setDashboardToDelete(null)}
+          onConfirm={handleDeleteConfirm}
+        />
+      )}
     </aside>
   );
 };
