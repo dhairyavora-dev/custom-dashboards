@@ -11,7 +11,7 @@ export interface Dashboard {
   updatedAt: Date;
 }
 
-export type ChartType = 'funnel' | 'rfm' | 'cohort' | 'userPath' | 'behavior';
+export type ChartType = 'funnel' | 'rfm' | 'cohort' | 'userPath' | 'behavior' | 'bar';
 
 export type DisplayMode = 'chart' | 'kpi' | 'chartAndKpi' | 'table' | 'transposedTable';
 

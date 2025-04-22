@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
@@ -5,12 +6,19 @@ import SaveChartModal from './SaveChartModal';
 import SubscriptionModal from './SubscriptionModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Bell } from 'lucide-react';
+import { Bell, Plus } from 'lucide-react'; // Added Plus icon import
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Chart } from '@/types/dashboard';
+import { Chart, ChartType } from '@/types/dashboard'; // Import ChartType
 import EmptyDashboard from './EmptyDashboard';
 import SampleChartCard from './SampleChartCard';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'; // Import dropdown components
+import CreateDashboardModal from './CreateDashboardModal'; // Import CreateDashboardModal
 
 const Dashboard: React.FC = () => {
   const { currentDashboard, renameDashboard } = useDashboard();
@@ -80,7 +88,7 @@ const Dashboard: React.FC = () => {
       id: `chart-${Date.now()}`,
       title: 'Sample Analysis',
       description: 'Sample description',
-      type: 'bar',
+      type: 'bar' as ChartType, // Cast 'bar' to ChartType
       displayMode: type === 'chart' ? 'chart' : 'table',
       isFullWidth: false,
       data: {
@@ -243,7 +251,7 @@ const Dashboard: React.FC = () => {
               chart={sampleChart}
               open={saveModalOpen}
               onOpenChange={setSaveModalOpen}
-              chartType={saveChartType}
+              chartType={saveChartType as any}
             />
           )}
         </div>
