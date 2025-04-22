@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Clock, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -54,7 +53,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ open, onOpenChang
   };
 
   const isFormValid = emails.length > 0 && frequency && time && 
-    (frequency === 'daily' || (frequency !== 'daily' && day));
+    (frequency === 'daily' || (frequency === 'weekly' || frequency === 'monthly' ? day : true));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

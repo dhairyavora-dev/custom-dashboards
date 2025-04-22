@@ -14,6 +14,8 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Plus, Bell } from 'lucide-react';
 import { Chart, ChartType } from '@/types/dashboard';
+import EmptyDashboard from './EmptyDashboard';
+import CreateDashboardModal from './CreateDashboardModal';
 
 const Dashboard: React.FC = () => {
   const { currentDashboard, renameDashboard } = useDashboard();
@@ -23,14 +25,7 @@ const Dashboard: React.FC = () => {
   const [sampleChart, setSampleChart] = useState<Chart | null>(null);
   const [subscribeModalOpen, setSubscribeModalOpen] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
-
-  if (!currentDashboard) {
-    return (
-      <div className="flex-1 p-6 flex items-center justify-center">
-        <p className="text-muted-foreground">Select a dashboard from the sidebar</p>
-      </div>
-    );
-  }
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   const handleEditTitle = () => {
     setNewTitle(currentDashboard.name);
@@ -60,12 +55,14 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleAddAnalysis = (type: ChartType) => {
+  const handleAddAnalysis = (type?: ChartType) => {
+    if (!currentDashboard) return;
+
     const newChart: Chart = {
       id: `chart-${Date.now()}`,
-      title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Analysis`,
-      description: `This is a new ${type} analysis`,
-      type,
+      title: `New ${type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Generic'} Analysis`,
+      description: `This is a new ${type || 'generic'} analysis`,
+      type: type || 'funnel',
       displayMode: 'chart',
       isFullWidth: false,
       data: {
@@ -80,129 +77,148 @@ const Dashboard: React.FC = () => {
     setSaveModalOpen(true);
   };
 
+  if (!currentDashboard) {
+    return (
+      <div className="flex-1 p-6 flex items-center justify-center">
+        <p className="text-muted-foreground">Select a dashboard from the sidebar</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex-1 p-6 overflow-y-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          {isEditingTitle ? (
-            <div className="flex items-center">
-              <Input
-                ref={titleInputRef}
-                type="text"
-                value={newTitle}
-                onChange={handleTitleChange}
-                onBlur={handleTitleSave}
-                onKeyDown={handleTitleKeyDown}
-                className="text-xl font-bold h-10"
-              />
+    <div className="flex-1">
+      {currentDashboard.charts.length === 0 ? (
+        <EmptyDashboard onAddAnalysis={() => handleAddAnalysis()} />
+      ) : (
+        <div className="flex-1 p-6 overflow-y-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              {isEditingTitle ? (
+                <div className="flex items-center">
+                  <Input
+                    ref={titleInputRef}
+                    type="text"
+                    value={newTitle}
+                    onChange={handleTitleChange}
+                    onBlur={handleTitleSave}
+                    onKeyDown={handleTitleKeyDown}
+                    className="text-xl font-bold h-10"
+                  />
+                </div>
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <h1 
+                        className="text-2xl font-bold cursor-pointer hover:text-netcore-blue transition-colors"
+                        onClick={handleEditTitle}
+                      >
+                        {currentDashboard.name}
+                      </h1>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Click to rename your dashboard.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              <p className="text-sm text-muted-foreground">
+                Last updated: {currentDashboard.updatedAt.toLocaleDateString()}
+              </p>
+            </div>
+            
+            <div className="flex space-x-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline">
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Analysis
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => handleAddAnalysis('funnel')}>
+                          Funnel Analysis
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleAddAnalysis('rfm')}>
+                          RFM Analysis
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleAddAnalysis('cohort')}>
+                          Cohort Analysis
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleAddAnalysis('userPath')}>
+                          User Path Analysis
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleAddAnalysis('behavior')}>
+                          Behavior Analysis
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Add charts from Funnel, RFM, Cohort, User Path, or Behavior dashboards.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setSubscribeModalOpen(true)}>
+                      <Bell className="mr-2 h-4 w-4" />
+                      Subscribe
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Get email snapshots of this dashboard based on your preferred schedule.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+
+          {currentDashboard && (
+            <SubscriptionModal
+              open={subscribeModalOpen}
+              onOpenChange={setSubscribeModalOpen}
+              dashboardName={currentDashboard.name}
+            />
+          )}
+
+          {currentDashboard.charts.length > 0 ? (
+            <div className="grid grid-cols-2 gap-4">
+              {currentDashboard.charts.map((chart) => (
+                <ChartCard key={chart.id} chart={chart} dashboardId={currentDashboard.id} />
+              ))}
             </div>
           ) : (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <h1 
-                    className="text-2xl font-bold cursor-pointer hover:text-netcore-blue transition-colors"
-                    onClick={handleEditTitle}
-                  >
-                    {currentDashboard.name}
-                  </h1>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Click to rename your dashboard.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div className="bg-muted rounded-lg p-6 text-center">
+              <h3 className="text-lg font-medium mb-2">No charts yet</h3>
+              <p className="text-muted-foreground mb-4">Start by adding an analysis to this dashboard</p>
+              <Button onClick={() => handleAddAnalysis()}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Your First Chart
+              </Button>
+            </div>
           )}
-          <p className="text-sm text-muted-foreground">
-            Last updated: {currentDashboard.updatedAt.toLocaleDateString()}
-          </p>
-        </div>
-        
-        <div className="flex space-x-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Analysis
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => handleAddAnalysis('funnel')}>
-                      Funnel Analysis
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleAddAnalysis('rfm')}>
-                      RFM Analysis
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleAddAnalysis('cohort')}>
-                      Cohort Analysis
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleAddAnalysis('userPath')}>
-                      User Path Analysis
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleAddAnalysis('behavior')}>
-                      Behavior Analysis
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Add charts from Funnel, RFM, Cohort, User Path, or Behavior dashboards.</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
           
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" onClick={() => setSubscribeModalOpen(true)}>
-                  <Bell className="mr-2 h-4 w-4" />
-                  Subscribe
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Get email snapshots of this dashboard based on your preferred schedule.</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </div>
-
-      {currentDashboard && (
-        <SubscriptionModal
-          open={subscribeModalOpen}
-          onOpenChange={setSubscribeModalOpen}
-          dashboardName={currentDashboard.name}
-        />
-      )}
-
-      {currentDashboard.charts.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4">
-          {currentDashboard.charts.map((chart) => (
-            <ChartCard key={chart.id} chart={chart} dashboardId={currentDashboard.id} />
-          ))}
-        </div>
-      ) : (
-        <div className="bg-muted rounded-lg p-6 text-center">
-          <h3 className="text-lg font-medium mb-2">No charts yet</h3>
-          <p className="text-muted-foreground mb-4">Start by adding an analysis to this dashboard</p>
-          <Button onClick={() => handleAddAnalysis('funnel')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Your First Chart
-          </Button>
+          {sampleChart && (
+            <SaveChartModal
+              chart={sampleChart}
+              open={saveModalOpen}
+              onOpenChange={setSaveModalOpen}
+              chartType={sampleChart.type}
+            />
+          )}
         </div>
       )}
       
-      {sampleChart && (
-        <SaveChartModal
-          chart={sampleChart}
-          open={saveModalOpen}
-          onOpenChange={setSaveModalOpen}
-          chartType={sampleChart.type}
-        />
-      )}
+      <CreateDashboardModal
+        open={createModalOpen}
+        onOpenChange={setCreateModalOpen}
+      />
     </div>
   );
 };

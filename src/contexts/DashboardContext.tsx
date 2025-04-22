@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Dashboard, Chart, SaveChartOptions } from '../types/dashboard';
 import { customDashboards, systemDashboards } from '../data/mockDashboards';
@@ -19,6 +18,7 @@ interface DashboardContextProps {
   toggleChartWidth: (dashboardId: string, chartId: string) => void;
   saveChart: (chart: Chart, options: SaveChartOptions) => void;
   updateChartOrder: (dashboardId: string, reorderedCharts: Chart[]) => void;
+  createDashboard: (name: string) => void;
 }
 
 const DashboardContext = createContext<DashboardContextProps | undefined>(undefined);
@@ -30,18 +30,15 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // Set the default dashboard to the first system dashboard
     if (allSystemDashboards.length > 0 && !currentDashboard) {
       setCurrentDashboard(allSystemDashboards[0]);
     }
   }, [allSystemDashboards, currentDashboard]);
 
-  // Filter dashboards based on search query
   const filteredDashboards = allCustomDashboards.filter(dashboard => 
     dashboard.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Sort filtered dashboards to put pinned ones at the top
   const sortedFilteredDashboards = [...filteredDashboards].sort((a, b) => {
     if (a.isPinned && !b.isPinned) return -1;
     if (!a.isPinned && b.isPinned) return 1;
@@ -64,7 +61,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const renameDashboard = (dashboardId: string, newName: string) => {
-    // Check if it's a custom or system dashboard
     const isCustom = allCustomDashboards.some(d => d.id === dashboardId);
     
     if (isCustom) {
@@ -85,7 +81,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       );
     }
     
-    // Update current dashboard if it's the one being renamed
     if (currentDashboard && currentDashboard.id === dashboardId) {
       setCurrentDashboard({ ...currentDashboard, name: newName, updatedAt: new Date() });
     }
@@ -97,7 +92,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const addChart = (dashboardId: string, chart: Chart) => {
-    // Check if it's a custom or system dashboard
     const isCustom = allCustomDashboards.some(d => d.id === dashboardId);
     
     if (isCustom) {
@@ -126,7 +120,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       );
     }
     
-    // Update current dashboard if it's the one being modified
     if (currentDashboard && currentDashboard.id === dashboardId) {
       setCurrentDashboard({
         ...currentDashboard,
@@ -142,7 +135,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const removeChart = (dashboardId: string, chartId: string) => {
-    // Check if it's a custom or system dashboard
     const isCustom = allCustomDashboards.some(d => d.id === dashboardId);
     
     if (isCustom) {
@@ -171,7 +163,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       );
     }
     
-    // Update current dashboard if it's the one being modified
     if (currentDashboard && currentDashboard.id === dashboardId) {
       setCurrentDashboard({
         ...currentDashboard,
@@ -187,7 +178,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const toggleChartWidth = (dashboardId: string, chartId: string) => {
-    // Check if it's a custom or system dashboard
     const isCustom = allCustomDashboards.some(d => d.id === dashboardId);
     
     if (isCustom) {
@@ -224,7 +214,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       );
     }
     
-    // Update current dashboard if it's the one being modified
     if (currentDashboard && currentDashboard.id === dashboardId) {
       setCurrentDashboard({
         ...currentDashboard,
@@ -257,7 +246,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
     
     if (options.saveType === 'saveAsNew') {
-      // Create a new chart with a different ID but same data
       const newChart = {
         ...chart,
         id: `${chart.id}-copy-${Date.now()}`,
@@ -271,7 +259,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         description: "A new copy of the analysis has been created.",
       });
       
-      // If dashboardId is provided, also add to dashboard
       if (options.dashboardId) {
         addChart(options.dashboardId, newChart);
       }
@@ -279,7 +266,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const updateChartOrder = (dashboardId: string, reorderedCharts: Chart[]) => {
-    // Check if it's a custom or system dashboard
     const isCustom = allCustomDashboards.some(d => d.id === dashboardId);
     
     if (isCustom) {
@@ -300,7 +286,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       );
     }
     
-    // Update current dashboard if it's the one being modified
     if (currentDashboard && currentDashboard.id === dashboardId) {
       setCurrentDashboard({
         ...currentDashboard,
@@ -308,6 +293,22 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         updatedAt: new Date()
       });
     }
+  };
+
+  const createDashboard = (name: string) => {
+    const newDashboard: Dashboard = {
+      id: `dashboard-${Date.now()}`,
+      name,
+      type: 'custom',
+      charts: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    setCustomDashboards(prev => [...prev, newDashboard]);
+    setCurrentDashboard(newDashboard);
+    
+    return newDashboard;
   };
 
   return (
@@ -326,7 +327,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         removeChart,
         toggleChartWidth,
         saveChart,
-        updateChartOrder
+        updateChartOrder,
+        createDashboard
       }}
     >
       {children}
