@@ -23,7 +23,7 @@ import {
   Download, 
   Trash2, 
   Info, 
-  ArrowsUpDown, 
+  ArrowUpDown, 
   LayoutGrid 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -329,7 +329,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chart, dashboardId }) => {
             </Tooltip>
           </TooltipProvider>
           <div className="text-xs text-muted-foreground flex items-center h-6">
-            <ArrowsUpDown className="h-3 w-3 mr-1" />
+            <ArrowUpDown className="h-3 w-3 mr-1" />
             <span>Drag to reorder</span>
           </div>
         </div>
