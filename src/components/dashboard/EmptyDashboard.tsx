@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   BarChart2,
-  Funnel,
+  Target,  // Replacing Funnel with Target
   Users,
   Activity
 } from 'lucide-react';
@@ -27,7 +27,7 @@ const EmptyDashboard: React.FC<EmptyDashboardProps> = ({ onAddAnalysis }) => {
     },
     {
       title: 'Funnel analysis',
-      icon: Funnel,
+      icon: Target,  // Replaced Funnel with Target
       tooltip: 'Track conversion steps and drop-offs across journeys',
       path: '/funnel'
     },
