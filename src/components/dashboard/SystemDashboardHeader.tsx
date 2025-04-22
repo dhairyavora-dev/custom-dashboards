@@ -48,6 +48,9 @@ const SystemDashboardHeader: React.FC<SystemDashboardHeaderProps> = ({
                   <DropdownMenuItem onClick={() => onSaveChart('table')}>
                     Save table to dashboard
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSaveChart('studio')}>
+                    Save to My Studio
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </TooltipTrigger>
@@ -62,3 +65,4 @@ const SystemDashboardHeader: React.FC<SystemDashboardHeaderProps> = ({
 };
 
 export default SystemDashboardHeader;
+

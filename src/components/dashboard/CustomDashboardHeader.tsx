@@ -101,6 +101,9 @@ const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
                     <DropdownMenuItem onClick={() => onSaveChart('table')}>
                       Save table to dashboard
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onSaveChart('studio')}>
+                      Save to My Studio
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TooltipTrigger>
@@ -167,3 +170,4 @@ const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
 };
 
 export default CustomDashboardHeader;
+
