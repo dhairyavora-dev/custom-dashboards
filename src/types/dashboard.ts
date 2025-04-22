@@ -13,7 +13,7 @@ export interface Dashboard {
 
 export type ChartType = 'funnel' | 'rfm' | 'cohort' | 'userPath' | 'behavior' | 'bar';
 
-export type DisplayMode = 'chart' | 'kpi' | 'chartAndKpi' | 'table' | 'transposedTable';
+export type DisplayMode = 'chart' | 'kpi' | 'chartAndKpi' | 'table' | 'transposedTable' | 'studio';
 
 export interface Chart {
   id: string;
