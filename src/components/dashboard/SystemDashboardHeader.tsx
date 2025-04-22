@@ -17,6 +17,7 @@ const SystemDashboardHeader: React.FC<SystemDashboardHeaderProps> = ({
           Sample dashboard with analysis examples
         </p>
       </div>
+      {/* No buttons for system dashboards */}
     </div>
   );
 };

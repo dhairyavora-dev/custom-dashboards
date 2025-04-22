@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
@@ -104,7 +105,8 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  const isSystemDashboard = currentDashboard ? ['home', 'behavior', 'revenue', 'raman'].includes(currentDashboard.id) : false;
+  // Determine if this is a system dashboard
+  const isSystemDashboard = ['home', 'behavior', 'revenue', 'raman'].includes(currentDashboard.id);
 
   return (
     <div className="flex-1">
