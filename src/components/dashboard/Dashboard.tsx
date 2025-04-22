@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
@@ -104,59 +105,55 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // Determine if this is a system dashboard
-  const isSystemDashboard = currentDashboard ? ['home', 'behavior', 'revenue', 'raman'].includes(currentDashboard.id) : false;
+  // Define system dashboard IDs explicitly
+  const systemDashboardIds = ['home', 'behavior', 'revenue', 'raman'];
+  const isSystemDashboard = systemDashboardIds.includes(currentDashboard.id);
+
+  // Log to verify system dashboard detection
+  console.log('Current dashboard ID:', currentDashboard.id);
+  console.log('Is system dashboard:', isSystemDashboard);
 
   return (
     <div className="flex-1">
-      {isSystemDashboard ? (
-        <div className="p-6">
-          <SystemDashboardHeader dashboard={currentDashboard} />
-          <div className="grid grid-cols-1 gap-4">
-            <SampleChartCard title="Sample Analysis" />
+      <div className="p-6">
+        <CustomDashboardHeader
+          dashboard={currentDashboard}
+          isEditingTitle={isEditingTitle}
+          newTitle={newTitle}
+          onEditTitle={handleEditTitle}
+          onTitleChange={handleTitleChange}
+          onTitleSave={handleTitleSave}
+          onTitleKeyDown={handleTitleKeyDown}
+          onAddAnalysis={handleAddAnalysis}
+          onSubscribe={() => setSubscribeModalOpen(true)}
+          isSystemDashboard={isSystemDashboard}
+        />
+
+        <SubscriptionModal
+          open={subscribeModalOpen}
+          onOpenChange={setSubscribeModalOpen}
+          dashboardName={currentDashboard?.name || ''}
+        />
+
+        {currentDashboard.charts.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4">
+            {currentDashboard.charts.map((chart) => (
+              <ChartCard key={chart.id} chart={chart} dashboardId={currentDashboard.id} />
+            ))}
           </div>
-        </div>
-      ) : (
-        <div className="flex-1 p-6 overflow-y-auto">
-          <CustomDashboardHeader
-            dashboard={currentDashboard}
-            isEditingTitle={isEditingTitle}
-            newTitle={newTitle}
-            onEditTitle={handleEditTitle}
-            onTitleChange={handleTitleChange}
-            onTitleSave={handleTitleSave}
-            onTitleKeyDown={handleTitleKeyDown}
-            onAddAnalysis={handleAddAnalysis}
-            onSubscribe={() => setSubscribeModalOpen(true)}
-            isSystemDashboard={isSystemDashboard}
+        ) : (
+          <EmptyDashboard onAddAnalysis={() => handleAddAnalysis()} />
+        )}
+        
+        {sampleChart && (
+          <SaveChartModal
+            chart={sampleChart}
+            open={saveModalOpen}
+            onOpenChange={setSaveModalOpen}
+            chartType={saveChartType}
           />
-
-          <SubscriptionModal
-            open={subscribeModalOpen}
-            onOpenChange={setSubscribeModalOpen}
-            dashboardName={currentDashboard?.name || ''}
-          />
-
-          {currentDashboard.charts.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4">
-              {currentDashboard.charts.map((chart) => (
-                <ChartCard key={chart.id} chart={chart} dashboardId={currentDashboard.id} />
-              ))}
-            </div>
-          ) : (
-            <EmptyDashboard onAddAnalysis={() => handleAddAnalysis()} />
-          )}
-          
-          {sampleChart && (
-            <SaveChartModal
-              chart={sampleChart}
-              open={saveModalOpen}
-              onOpenChange={setSaveModalOpen}
-              chartType={saveChartType}
-            />
-          )}
-        </div>
-      )}
+        )}
+      </div>
       
       <CreateDashboardModal
         open={createModalOpen}

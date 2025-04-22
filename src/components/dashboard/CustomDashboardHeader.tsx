@@ -22,7 +22,7 @@ interface CustomDashboardHeaderProps {
   onTitleKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onAddAnalysis: (type?: ChartType) => void;
   onSubscribe: () => void;
-  isSystemDashboard?: boolean; // Add this prop to control button visibility
+  isSystemDashboard?: boolean;
 }
 
 const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
@@ -35,7 +35,7 @@ const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
   onTitleKeyDown,
   onAddAnalysis,
   onSubscribe,
-  isSystemDashboard = false, // Default to false
+  isSystemDashboard = false,
 }) => {
   const titleInputRef = useRef<HTMLInputElement>(null);
 
@@ -60,7 +60,7 @@ const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
               <TooltipTrigger asChild>
                 <h1 
                   className="text-2xl font-bold cursor-pointer hover:text-netcore-blue transition-colors"
-                  onClick={onEditTitle}
+                  onClick={isSystemDashboard ? undefined : onEditTitle}
                 >
                   {dashboard.name}
                 </h1>
@@ -72,7 +72,9 @@ const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
           </TooltipProvider>
         )}
         <p className="text-sm text-muted-foreground">
-          Last updated: {dashboard.updatedAt.toLocaleDateString()}
+          {isSystemDashboard 
+            ? "Sample dashboard with analysis examples" 
+            : `Last updated: ${dashboard.updatedAt.toLocaleDateString()}`}
         </p>
       </div>
       
