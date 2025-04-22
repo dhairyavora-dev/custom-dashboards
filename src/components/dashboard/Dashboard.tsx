@@ -4,9 +4,9 @@ import ChartCard from './ChartCard';
 import SaveChartModal from './SaveChartModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Save } from 'lucide-react';
+import { Save, Plus, Bell } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Chart } from '@/types/dashboard';
+import { Chart, ChartType } from '@/types/dashboard';
 import EmptyDashboard from './EmptyDashboard';
 import SampleChartCard from './SampleChartCard';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import CreateDashboardModal from './CreateDashboardModal';
+import SubscriptionModal from './SubscriptionModal';
 
 const Dashboard: React.FC = () => {
   const { currentDashboard, renameDashboard } = useDashboard();
