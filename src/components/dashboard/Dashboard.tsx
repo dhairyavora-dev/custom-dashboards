@@ -105,12 +105,12 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // Define system dashboard IDs explicitly
-  const systemDashboardIds = ['home', 'behavior', 'revenue', 'raman'];
-  const isSystemDashboard = systemDashboardIds.includes(currentDashboard.id);
-
+  // Check if the dashboard is a system dashboard by type rather than ID
+  const isSystemDashboard = currentDashboard.type === 'system';
+  
   // Log to verify system dashboard detection
   console.log('Current dashboard ID:', currentDashboard.id);
+  console.log('Current dashboard type:', currentDashboard.type);
   console.log('Is system dashboard:', isSystemDashboard);
 
   return (

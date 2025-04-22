@@ -66,14 +66,14 @@ const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
                 </h1>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Click to rename your dashboard.</p>
+                <p>{isSystemDashboard ? "System dashboards cannot be renamed" : "Click to rename your dashboard."}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         )}
         <p className="text-sm text-muted-foreground">
           {isSystemDashboard 
-            ? "Sample dashboard with analysis examples" 
+            ? "System dashboard with analysis examples" 
             : `Last updated: ${dashboard.updatedAt.toLocaleDateString()}`}
         </p>
       </div>
