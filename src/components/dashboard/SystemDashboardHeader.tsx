@@ -4,12 +4,10 @@ import { Dashboard } from '@/types/dashboard';
 
 interface SystemDashboardHeaderProps {
   dashboard: Dashboard;
-  onSaveChart: (type: 'chart' | 'table') => void;
 }
 
 const SystemDashboardHeader: React.FC<SystemDashboardHeaderProps> = ({
   dashboard,
-  onSaveChart,
 }) => {
   return (
     <div className="flex items-center justify-between mb-6">

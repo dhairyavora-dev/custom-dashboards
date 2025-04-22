@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
@@ -111,10 +110,7 @@ const Dashboard: React.FC = () => {
     <div className="flex-1">
       {isSystemDashboard ? (
         <div className="p-6">
-          <SystemDashboardHeader
-            dashboard={currentDashboard}
-            onSaveChart={handleSaveChart}
-          />
+          <SystemDashboardHeader dashboard={currentDashboard} />
           <div className="grid grid-cols-1 gap-4">
             <SampleChartCard title="Sample Analysis" />
           </div>
