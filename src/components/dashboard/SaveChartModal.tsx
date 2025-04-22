@@ -25,7 +25,7 @@ interface SaveChartModalProps {
   chart: Chart;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  chartType: 'chart' | 'table';
+  chartType: 'chart' | 'table' | 'studio';
 }
 
 const SaveChartModal: React.FC<SaveChartModalProps> = ({

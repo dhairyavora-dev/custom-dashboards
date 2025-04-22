@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +22,7 @@ interface CustomDashboardHeaderProps {
   onAddAnalysis: (type?: ChartType) => void;
   onSubscribe: () => void;
   isSystemDashboard?: boolean;
-  onSaveChart: (type: 'chart' | 'table') => void;
+  onSaveChart: (type: 'chart' | 'table' | 'studio') => void;
 }
 
 const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
@@ -170,4 +169,3 @@ const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
 };
 
 export default CustomDashboardHeader;
-

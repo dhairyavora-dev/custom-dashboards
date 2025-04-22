@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
@@ -22,7 +21,7 @@ const Dashboard: React.FC = () => {
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const { toast } = useToast();
-  const [saveChartType, setSaveChartType] = useState<'chart' | 'table'>('chart');
+  const [saveChartType, setSaveChartType] = useState<'chart' | 'table' | 'studio'>('chart');
 
   const handleEditTitle = () => {
     if (!currentDashboard) return;
@@ -78,7 +77,7 @@ const Dashboard: React.FC = () => {
     setSaveModalOpen(true);
   };
 
-  const handleSaveChart = (type: 'chart' | 'table') => {
+  const handleSaveChart = (type: 'chart' | 'table' | 'studio') => {
     setSaveChartType(type);
     setSampleChart({
       id: `chart-${Date.now()}`,
@@ -105,10 +104,8 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // Check if the dashboard is a system dashboard by type rather than ID
   const isSystemDashboard = currentDashboard.type === 'system';
   
-  // Log to verify system dashboard detection
   console.log('Current dashboard ID:', currentDashboard.id);
   console.log('Current dashboard type:', currentDashboard.type);
   console.log('Is system dashboard:', isSystemDashboard);

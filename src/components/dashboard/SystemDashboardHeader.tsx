@@ -13,7 +13,7 @@ import { Dashboard } from '@/types/dashboard';
 
 interface SystemDashboardHeaderProps {
   dashboard: Dashboard;
-  onSaveChart: (type: 'chart' | 'table') => void;
+  onSaveChart: (type: 'chart' | 'table' | 'studio') => void;
 }
 
 const SystemDashboardHeader: React.FC<SystemDashboardHeaderProps> = ({
@@ -65,4 +65,3 @@ const SystemDashboardHeader: React.FC<SystemDashboardHeaderProps> = ({
 };
 
 export default SystemDashboardHeader;
-
