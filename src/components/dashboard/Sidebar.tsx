@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { Dashboard } from '@/types/dashboard';
-import { Pin, Search, Trash2 } from 'lucide-react';
+import { Pin, Search, Trash2, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import DeleteDashboardModal from './DeleteDashboardModal';
+import CreateDashboardModal from './CreateDashboardModal';
 import { useToast } from "@/hooks/use-toast";
 
 const Sidebar: React.FC = () => {
@@ -22,6 +23,7 @@ const Sidebar: React.FC = () => {
   } = useDashboard();
 
   const [dashboardToDelete, setDashboardToDelete] = useState<Dashboard | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { toast } = useToast();
 
   const handleDashboardClick = (dashboard: Dashboard) => {
@@ -47,6 +49,18 @@ const Sidebar: React.FC = () => {
       });
       setDashboardToDelete(null);
     }
+  };
+
+  const handleCreateClick = () => {
+    if (filteredDashboards.length >= 10) {
+      toast({
+        title: "Dashboard Limit Reached",
+        description: "You've reached the limit of 10 dashboards. Please delete an existing one to continue.",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsCreateModalOpen(true);
   };
 
   return (
@@ -89,8 +103,26 @@ const Sidebar: React.FC = () => {
               {filteredDashboards.length}/10
             </span>
           </div>
-          
-          <div className="mb-2 px-2">
+
+          <div className="flex flex-col gap-2 px-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-netcore-blue hover:text-netcore-blue hover:bg-netcore-light-blue transition-colors px-2 py-1 h-8"
+                    onClick={handleCreateClick}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Create Dashboard
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Create a new custom dashboard to pin charts and KPIs</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -187,6 +219,11 @@ const Sidebar: React.FC = () => {
           onConfirm={handleDeleteConfirm}
         />
       )}
+
+      <CreateDashboardModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+      />
     </aside>
   );
 };
