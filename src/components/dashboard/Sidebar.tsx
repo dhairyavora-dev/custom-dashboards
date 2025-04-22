@@ -17,7 +17,8 @@ const Sidebar: React.FC = () => {
     setCurrentDashboard, 
     searchQuery, 
     setSearchQuery,
-    togglePinDashboard 
+    togglePinDashboard,
+    deleteDashboard
   } = useDashboard();
 
   const [dashboardToDelete, setDashboardToDelete] = useState<Dashboard | null>(null);
