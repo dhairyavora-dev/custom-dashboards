@@ -2,7 +2,7 @@
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Bell } from 'lucide-react';
+import { Plus, Bell, Save } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   DropdownMenu,
@@ -23,6 +23,7 @@ interface CustomDashboardHeaderProps {
   onAddAnalysis: (type?: ChartType) => void;
   onSubscribe: () => void;
   isSystemDashboard?: boolean;
+  onSaveChart: (type: 'chart' | 'table') => void;
 }
 
 const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
@@ -36,6 +37,7 @@ const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
   onAddAnalysis,
   onSubscribe,
   isSystemDashboard = false,
+  onSaveChart,
 }) => {
   const titleInputRef = useRef<HTMLInputElement>(null);
 
@@ -78,7 +80,37 @@ const CustomDashboardHeader: React.FC<CustomDashboardHeaderProps> = ({
         </p>
       </div>
       
-      {!isSystemDashboard && (
+      {isSystemDashboard ? (
+        <div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      className="bg-[#00A5EC] hover:bg-[#0095D2] text-white"
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      Save
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="rounded-md border shadow-md">
+                    <DropdownMenuItem onClick={() => onSaveChart('chart')}>
+                      Save chart to dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onSaveChart('table')}>
+                      Save table to dashboard
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Save this chart or table to a custom dashboard</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      ) : (
         <div className="flex space-x-2">
           <TooltipProvider>
             <Tooltip>

@@ -127,6 +127,7 @@ const Dashboard: React.FC = () => {
           onAddAnalysis={handleAddAnalysis}
           onSubscribe={() => setSubscribeModalOpen(true)}
           isSystemDashboard={isSystemDashboard}
+          onSaveChart={handleSaveChart}
         />
 
         <SubscriptionModal
