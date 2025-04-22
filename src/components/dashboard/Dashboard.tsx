@@ -5,17 +5,12 @@ import SaveChartModal from './SaveChartModal';
 import SubscriptionModal from './SubscriptionModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
+import { Bell } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Plus, Bell } from 'lucide-react';
-import { Chart, ChartType } from '@/types/dashboard';
+import { Chart } from '@/types/dashboard';
 import EmptyDashboard from './EmptyDashboard';
-import CreateDashboardModal from './CreateDashboardModal';
+import SampleChartCard from './SampleChartCard';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard: React.FC = () => {
   const { currentDashboard, renameDashboard } = useDashboard();
@@ -26,6 +21,8 @@ const Dashboard: React.FC = () => {
   const [subscribeModalOpen, setSubscribeModalOpen] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const { toast } = useToast();
+  const [saveChartType, setSaveChartType] = useState<'chart' | 'table'>('chart');
 
   const handleEditTitle = () => {
     setNewTitle(currentDashboard.name);
@@ -77,6 +74,27 @@ const Dashboard: React.FC = () => {
     setSaveModalOpen(true);
   };
 
+  const handleSaveChart = (type: 'chart' | 'table') => {
+    setSaveChartType(type);
+    setSampleChart({
+      id: `chart-${Date.now()}`,
+      title: 'Sample Analysis',
+      description: 'Sample description',
+      type: 'bar',
+      displayMode: type === 'chart' ? 'chart' : 'table',
+      isFullWidth: false,
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+        values: [4000, 3000, 2000, 2780, 1890]
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    setSaveModalOpen(true);
+  };
+
+  const isSystemDashboard = ['home', 'behavior', 'revenue', 'raman'].includes(currentDashboard.id);
+
   if (!currentDashboard) {
     return (
       <div className="flex-1 p-6 flex items-center justify-center">
@@ -87,8 +105,24 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="flex-1">
-      {currentDashboard.charts.length === 0 ? (
-        <EmptyDashboard onAddAnalysis={() => handleAddAnalysis()} />
+      {isSystemDashboard ? (
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-bold">{currentDashboard.name}</h1>
+              <p className="text-sm text-muted-foreground">
+                Sample dashboard with analysis examples
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <SampleChartCard
+              title="Sample Analysis"
+              onSaveChart={() => handleSaveChart('chart')}
+              onSaveTable={() => handleSaveChart('table')}
+            />
+          </div>
+        </div>
       ) : (
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="flex items-center justify-between mb-6">
@@ -209,7 +243,7 @@ const Dashboard: React.FC = () => {
               chart={sampleChart}
               open={saveModalOpen}
               onOpenChange={setSaveModalOpen}
-              chartType={sampleChart.type}
+              chartType={saveChartType}
             />
           )}
         </div>
