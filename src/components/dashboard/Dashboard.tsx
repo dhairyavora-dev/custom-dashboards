@@ -2,12 +2,11 @@ import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
 import SaveChartModal from './SaveChartModal';
-import SubscriptionModal from './SubscriptionModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Bell, Plus } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Chart, ChartType } from '@/types/dashboard';
+import { Chart } from '@/types/dashboard';
 import EmptyDashboard from './EmptyDashboard';
 import SampleChartCard from './SampleChartCard';
 import { useToast } from '@/hooks/use-toast';
@@ -91,7 +90,7 @@ const Dashboard: React.FC = () => {
       id: `chart-${Date.now()}`,
       title: 'Sample Analysis',
       description: 'Sample description',
-      type: 'bar' as ChartType,
+      type: 'bar',
       displayMode: type === 'chart' ? 'chart' : 'table',
       isFullWidth: false,
       data: {
@@ -125,13 +124,34 @@ const Dashboard: React.FC = () => {
                 Sample dashboard with analysis examples
               </p>
             </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button className="bg-[#00A5EC] hover:bg-[#0095D2] text-white">
+                        <Save className="mr-2 h-4 w-4" />
+                        Save
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="rounded-md">
+                      <DropdownMenuItem onClick={() => handleSaveChart('chart')} className="cursor-pointer hover:bg-slate-100">
+                        Save chart to dashboard
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSaveChart('table')} className="cursor-pointer hover:bg-slate-100">
+                        Save table to dashboard
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Save this chart or table to a custom dashboard</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <div className="grid grid-cols-1 gap-4">
-            <SampleChartCard
-              title="Sample Analysis"
-              onSaveChart={() => handleSaveChart('chart')}
-              onSaveTable={() => handleSaveChart('table')}
-            />
+            <SampleChartCard title="Sample Analysis" />
           </div>
         </div>
       ) : (
