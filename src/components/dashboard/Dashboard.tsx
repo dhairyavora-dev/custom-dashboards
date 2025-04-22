@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
@@ -145,7 +146,7 @@ const Dashboard: React.FC = () => {
               ))}
             </div>
           ) : (
-            <EmptyDashboard onAddChart={() => handleAddAnalysis()} />
+            <EmptyDashboard onAddAnalysis={() => handleAddAnalysis()} />
           )}
           
           {sampleChart && (
