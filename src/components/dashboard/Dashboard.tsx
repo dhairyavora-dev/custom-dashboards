@@ -135,7 +135,7 @@ const Dashboard: React.FC = () => {
                         Save
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-md">
+                    <DropdownMenuContent align="end" className="bg-white rounded-md border border-gray-200 shadow-md z-50">
                       <DropdownMenuItem onClick={() => handleSaveChart('chart')} className="cursor-pointer hover:bg-slate-100">
                         Save chart to dashboard
                       </DropdownMenuItem>
@@ -248,7 +248,7 @@ const Dashboard: React.FC = () => {
           <SubscriptionModal
             open={subscribeModalOpen}
             onOpenChange={setSubscribeModalOpen}
-            dashboardName={currentDashboard.name}
+            dashboardName={currentDashboard?.name || ''}
           />
 
           {currentDashboard.charts.length > 0 ? (
