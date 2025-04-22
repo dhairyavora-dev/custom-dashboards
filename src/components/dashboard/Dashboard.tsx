@@ -1,8 +1,8 @@
-
 import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
 import SaveChartModal from './SaveChartModal';
+import SubscriptionModal from './SubscriptionModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -21,6 +21,7 @@ const Dashboard: React.FC = () => {
   const [newTitle, setNewTitle] = useState('');
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [sampleChart, setSampleChart] = useState<Chart | null>(null);
+  const [subscribeModalOpen, setSubscribeModalOpen] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   if (!currentDashboard) {
@@ -60,7 +61,6 @@ const Dashboard: React.FC = () => {
   };
 
   const handleAddAnalysis = (type: ChartType) => {
-    // Create a sample chart to be saved
     const newChart: Chart = {
       id: `chart-${Date.now()}`,
       title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Analysis`,
@@ -157,18 +157,26 @@ const Dashboard: React.FC = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => setSubscribeModalOpen(true)}>
                   <Bell className="mr-2 h-4 w-4" />
                   Subscribe
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Get email snapshots of this dashboard. Frequency and recipients can be customized.</p>
+                <p>Get email snapshots of this dashboard based on your preferred schedule.</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
       </div>
+
+      {currentDashboard && (
+        <SubscriptionModal
+          open={subscribeModalOpen}
+          onOpenChange={setSubscribeModalOpen}
+          dashboardName={currentDashboard.name}
+        />
+      )}
 
       {currentDashboard.charts.length > 0 ? (
         <div className="grid grid-cols-2 gap-4">
