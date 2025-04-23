@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { mockSystemDashboards, mockCustomDashboards } from '@/data/mockDashboards';
+import { systemDashboards, customDashboards } from '@/data/mockDashboards';
 import { Dashboard, Chart, SaveChartOptions } from '@/types/dashboard';
 
 export type ViewType = 'dashboard' | 'insightGenerator';
@@ -20,20 +20,22 @@ interface DashboardContextProps {
   deleteDashboard: (id: string) => void;
   togglePinDashboard: (id: string) => void;
   saveChart: (chart: Chart, options: SaveChartOptions) => void;
+  removeChart: (dashboardId: string, chartId: string) => void;
+  toggleChartWidth: (dashboardId: string, chartId: string) => void;
 }
 
 const DashboardContext = createContext<DashboardContextProps | undefined>(undefined);
 
 export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [systemDashboards, setSystemDashboards] = useState<Dashboard[]>(mockSystemDashboards);
-  const [customDashboards, setCustomDashboards] = useState<Dashboard[]>(mockCustomDashboards);
-  const [currentDashboard, setCurrentDashboard] = useState<Dashboard | null>(mockSystemDashboards[0]);
+  const [systemDashboardsState, setSystemDashboards] = useState<Dashboard[]>(systemDashboards);
+  const [customDashboardsState, setCustomDashboards] = useState<Dashboard[]>(customDashboards);
+  const [currentDashboard, setCurrentDashboard] = useState<Dashboard | null>(systemDashboards[0]);
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter and sort dashboards: Pinned first, then alphabetically
   const filteredDashboards = React.useMemo(() => {
-    const filtered = customDashboards.filter(dashboard => 
+    const filtered = customDashboardsState.filter(dashboard => 
       dashboard.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
     
@@ -43,7 +45,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (!a.isPinned && b.isPinned) return 1;
       return a.name.localeCompare(b.name);
     });
-  }, [customDashboards, searchQuery]);
+  }, [customDashboardsState, searchQuery]);
 
   const createDashboard = (name: string): Dashboard => {
     const newDashboard: Dashboard = {
@@ -75,7 +77,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     // If the current dashboard is deleted, set the first system dashboard as current
     if (currentDashboard?.id === id) {
-      setCurrentDashboard(systemDashboards[0]);
+      setCurrentDashboard(systemDashboardsState[0]);
     }
   };
 
@@ -87,6 +89,76 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           : dashboard
       )
     );
+  };
+
+  const removeChart = (dashboardId: string, chartId: string) => {
+    // For system dashboards
+    if (dashboardId.includes('system') || dashboardId.includes('home') || dashboardId.includes('behavior') || dashboardId.includes('revenue') || dashboardId.includes('raman')) {
+      setSystemDashboards(prev => 
+        prev.map(dashboard => 
+          dashboard.id === dashboardId 
+            ? { 
+                ...dashboard, 
+                charts: dashboard.charts.filter(chart => chart.id !== chartId),
+                updatedAt: new Date()
+              } 
+            : dashboard
+        )
+      );
+    }
+    // For custom dashboards
+    else {
+      setCustomDashboards(prev => 
+        prev.map(dashboard => 
+          dashboard.id === dashboardId 
+            ? { 
+                ...dashboard, 
+                charts: dashboard.charts.filter(chart => chart.id !== chartId),
+                updatedAt: new Date()
+              } 
+            : dashboard
+        )
+      );
+    }
+  };
+
+  const toggleChartWidth = (dashboardId: string, chartId: string) => {
+    // For system dashboards
+    if (dashboardId.includes('system') || dashboardId.includes('home') || dashboardId.includes('behavior') || dashboardId.includes('revenue') || dashboardId.includes('raman')) {
+      setSystemDashboards(prev => 
+        prev.map(dashboard => 
+          dashboard.id === dashboardId 
+            ? { 
+                ...dashboard, 
+                charts: dashboard.charts.map(chart => 
+                  chart.id === chartId 
+                    ? { ...chart, isFullWidth: !chart.isFullWidth }
+                    : chart
+                ),
+                updatedAt: new Date()
+              } 
+            : dashboard
+        )
+      );
+    }
+    // For custom dashboards
+    else {
+      setCustomDashboards(prev => 
+        prev.map(dashboard => 
+          dashboard.id === dashboardId 
+            ? { 
+                ...dashboard, 
+                charts: dashboard.charts.map(chart => 
+                  chart.id === chartId 
+                    ? { ...chart, isFullWidth: !chart.isFullWidth }
+                    : chart
+                ),
+                updatedAt: new Date()
+              } 
+            : dashboard
+        )
+      );
+    }
   };
 
   const saveChart = (chart: Chart, options: SaveChartOptions) => {
@@ -128,8 +200,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   return (
     <DashboardContext.Provider
       value={{
-        systemDashboards,
-        customDashboards,
+        systemDashboards: systemDashboardsState,
+        customDashboards: customDashboardsState,
         filteredDashboards,
         currentDashboard,
         currentView,
@@ -141,7 +213,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         renameDashboard,
         deleteDashboard,
         togglePinDashboard,
-        saveChart
+        saveChart,
+        removeChart,
+        toggleChartWidth
       }}
     >
       {children}
