@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { Dashboard } from '@/types/dashboard';
-import { Pin, Search, Trash2, Plus } from 'lucide-react';
+import { Pin, Search, Trash2, Plus, MessageSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -14,8 +15,10 @@ const Sidebar: React.FC = () => {
   const { 
     systemDashboards, 
     filteredDashboards, 
-    currentDashboard, 
+    currentDashboard,
+    currentView,
     setCurrentDashboard, 
+    setCurrentView,
     searchQuery, 
     setSearchQuery,
     togglePinDashboard,
@@ -28,6 +31,7 @@ const Sidebar: React.FC = () => {
 
   const handleDashboardClick = (dashboard: Dashboard) => {
     setCurrentDashboard(dashboard);
+    setCurrentView('dashboard');
   };
 
   const handlePinClick = (e: React.MouseEvent, dashboardId: string) => {
@@ -62,6 +66,10 @@ const Sidebar: React.FC = () => {
     }
     setIsCreateModalOpen(true);
   };
+  
+  const handleInsightGeneratorClick = () => {
+    setCurrentView('insightGenerator');
+  };
 
   return (
     <aside className="bg-sidebar h-screen w-64 border-r border-border flex flex-col">
@@ -82,7 +90,7 @@ const Sidebar: React.FC = () => {
                   onClick={() => handleDashboardClick(dashboard)}
                   className={cn(
                     "w-full text-left px-2 py-2 text-sm rounded-md mb-1 flex items-center",
-                    currentDashboard?.id === dashboard.id
+                    currentDashboard?.id === dashboard.id && currentView === 'dashboard'
                       ? "bg-netcore-blue text-white"
                       : "hover:bg-muted"
                   )}
@@ -152,7 +160,7 @@ const Sidebar: React.FC = () => {
                       onClick={() => handleDashboardClick(dashboard)}
                       className={cn(
                         "w-full text-left px-2 py-2 text-sm rounded-md mb-1 flex items-center justify-between",
-                        currentDashboard?.id === dashboard.id
+                        currentDashboard?.id === dashboard.id && currentView === 'dashboard'
                           ? "bg-netcore-blue text-white"
                           : "hover:bg-muted"
                       )}
@@ -166,7 +174,7 @@ const Sidebar: React.FC = () => {
                                 onClick={(e) => handleDeleteClick(e, dashboard)}
                                 className={cn(
                                   "opacity-0 group-hover:opacity-100 transition-opacity",
-                                  currentDashboard?.id === dashboard.id ? "text-white" : "text-muted-foreground"
+                                  currentDashboard?.id === dashboard.id && currentView === 'dashboard' ? "text-white" : "text-muted-foreground"
                                 )}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -186,7 +194,7 @@ const Sidebar: React.FC = () => {
                                 className={cn(
                                   "opacity-0 group-hover:opacity-100 transition-opacity",
                                   dashboard.isPinned ? "opacity-100" : "",
-                                  currentDashboard?.id === dashboard.id ? "text-white" : "text-muted-foreground"
+                                  currentDashboard?.id === dashboard.id && currentView === 'dashboard' ? "text-white" : "text-muted-foreground"
                                 )}
                               >
                                 <Pin className={cn("h-4 w-4", dashboard.isPinned ? "fill-current" : "")} />
@@ -207,6 +215,28 @@ const Sidebar: React.FC = () => {
                 No dashboards found
               </li>
             )}
+          </ul>
+        </div>
+        
+        <div className="py-2 border-t mt-2">
+          <h2 className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Insight Generator
+          </h2>
+          <ul>
+            <li>
+              <button
+                onClick={handleInsightGeneratorClick}
+                className={cn(
+                  "w-full text-left px-2 py-2 text-sm rounded-md mb-1 flex items-center",
+                  currentView === 'insightGenerator'
+                    ? "bg-netcore-blue text-white"
+                    : "hover:bg-muted"
+                )}
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Ask AI for Insights
+              </button>
+            </li>
           </ul>
         </div>
       </nav>

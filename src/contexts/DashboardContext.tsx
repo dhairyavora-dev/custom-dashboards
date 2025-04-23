@@ -1,326 +1,126 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Dashboard, Chart, SaveChartOptions } from '../types/dashboard';
-import { customDashboards, systemDashboards } from '../data/mockDashboards';
-import { toast } from '@/hooks/use-toast';
+import { mockSystemDashboards, mockCustomDashboards } from '@/data/mockDashboards';
+import { Dashboard, Chart, SaveChartOptions } from '@/types/dashboard';
+
+export type ViewType = 'dashboard' | 'insightGenerator';
 
 interface DashboardContextProps {
   systemDashboards: Dashboard[];
   customDashboards: Dashboard[];
-  currentDashboard: Dashboard | null;
-  setCurrentDashboard: (dashboard: Dashboard) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
   filteredDashboards: Dashboard[];
-  togglePinDashboard: (dashboardId: string) => void;
-  renameDashboard: (dashboardId: string, newName: string) => void;
-  addChart: (dashboardId: string, chart: Chart) => void;
-  removeChart: (dashboardId: string, chartId: string) => void;
-  toggleChartWidth: (dashboardId: string, chartId: string) => void;
+  currentDashboard: Dashboard | null;
+  currentView: ViewType;
+  searchQuery: string;
+  setCurrentDashboard: (dashboard: Dashboard) => void;
+  setCurrentView: (view: ViewType) => void;
+  setSearchQuery: (query: string) => void;
+  createDashboard: (name: string) => Dashboard;
+  renameDashboard: (id: string, name: string) => void;
+  deleteDashboard: (id: string) => void;
+  togglePinDashboard: (id: string) => void;
   saveChart: (chart: Chart, options: SaveChartOptions) => void;
-  updateChartOrder: (dashboardId: string, reorderedCharts: Chart[]) => void;
-  createDashboard: (name: string) => void;
-  deleteDashboard: (dashboardId: string) => void;
 }
 
 const DashboardContext = createContext<DashboardContextProps | undefined>(undefined);
 
 export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [allSystemDashboards, setSystemDashboards] = useState<Dashboard[]>(systemDashboards);
-  const [allCustomDashboards, setCustomDashboards] = useState<Dashboard[]>(customDashboards);
-  const [currentDashboard, setCurrentDashboard] = useState<Dashboard | null>(null);
+  const [systemDashboards, setSystemDashboards] = useState<Dashboard[]>(mockSystemDashboards);
+  const [customDashboards, setCustomDashboards] = useState<Dashboard[]>(mockCustomDashboards);
+  const [currentDashboard, setCurrentDashboard] = useState<Dashboard | null>(mockSystemDashboards[0]);
+  const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    if (allSystemDashboards.length > 0 && !currentDashboard) {
-      setCurrentDashboard(allSystemDashboards[0]);
-    }
-  }, [allSystemDashboards, currentDashboard]);
-
-  const filteredDashboards = allCustomDashboards.filter(dashboard => 
-    dashboard.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const sortedFilteredDashboards = [...filteredDashboards].sort((a, b) => {
-    if (a.isPinned && !b.isPinned) return -1;
-    if (!a.isPinned && b.isPinned) return 1;
-    return 0;
-  });
-
-  const togglePinDashboard = (dashboardId: string) => {
-    setCustomDashboards(prevDashboards =>
-      prevDashboards.map(dashboard =>
-        dashboard.id === dashboardId
-          ? { ...dashboard, isPinned: !dashboard.isPinned }
-          : dashboard
-      )
+  // Filter and sort dashboards: Pinned first, then alphabetically
+  const filteredDashboards = React.useMemo(() => {
+    const filtered = customDashboards.filter(dashboard => 
+      dashboard.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
     
-    toast({
-      title: "Dashboard Updated",
-      description: "Pin status has been updated.",
+    // Sort: Pinned first, then alphabetically
+    return filtered.sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return a.name.localeCompare(b.name);
     });
-  };
+  }, [customDashboards, searchQuery]);
 
-  const renameDashboard = (dashboardId: string, newName: string) => {
-    const isCustom = allCustomDashboards.some(d => d.id === dashboardId);
-    
-    if (isCustom) {
-      setCustomDashboards(prevDashboards =>
-        prevDashboards.map(dashboard =>
-          dashboard.id === dashboardId
-            ? { ...dashboard, name: newName, updatedAt: new Date() }
-            : dashboard
-        )
-      );
-    } else {
-      setSystemDashboards(prevDashboards =>
-        prevDashboards.map(dashboard =>
-          dashboard.id === dashboardId
-            ? { ...dashboard, name: newName, updatedAt: new Date() }
-            : dashboard
-        )
-      );
-    }
-    
-    if (currentDashboard && currentDashboard.id === dashboardId) {
-      setCurrentDashboard({ ...currentDashboard, name: newName, updatedAt: new Date() });
-    }
-    
-    toast({
-      title: "Dashboard Renamed",
-      description: `Dashboard has been renamed to "${newName}".`,
-    });
-  };
-
-  const addChart = (dashboardId: string, chart: Chart) => {
-    const isCustom = allCustomDashboards.some(d => d.id === dashboardId);
-    
-    if (isCustom) {
-      setCustomDashboards(prevDashboards =>
-        prevDashboards.map(dashboard =>
-          dashboard.id === dashboardId
-            ? { 
-                ...dashboard, 
-                charts: [...dashboard.charts, chart],
-                updatedAt: new Date()
-              }
-            : dashboard
-        )
-      );
-    } else {
-      setSystemDashboards(prevDashboards =>
-        prevDashboards.map(dashboard =>
-          dashboard.id === dashboardId
-            ? { 
-                ...dashboard, 
-                charts: [...dashboard.charts, chart],
-                updatedAt: new Date()
-              }
-            : dashboard
-        )
-      );
-    }
-    
-    if (currentDashboard && currentDashboard.id === dashboardId) {
-      setCurrentDashboard({
-        ...currentDashboard,
-        charts: [...currentDashboard.charts, chart],
-        updatedAt: new Date()
-      });
-    }
-    
-    toast({
-      title: "Chart Added",
-      description: "New chart has been added to the dashboard.",
-    });
-  };
-
-  const removeChart = (dashboardId: string, chartId: string) => {
-    const isCustom = allCustomDashboards.some(d => d.id === dashboardId);
-    
-    if (isCustom) {
-      setCustomDashboards(prevDashboards =>
-        prevDashboards.map(dashboard =>
-          dashboard.id === dashboardId
-            ? { 
-                ...dashboard, 
-                charts: dashboard.charts.filter(chart => chart.id !== chartId),
-                updatedAt: new Date()
-              }
-            : dashboard
-        )
-      );
-    } else {
-      setSystemDashboards(prevDashboards =>
-        prevDashboards.map(dashboard =>
-          dashboard.id === dashboardId
-            ? { 
-                ...dashboard, 
-                charts: dashboard.charts.filter(chart => chart.id !== chartId),
-                updatedAt: new Date()
-              }
-            : dashboard
-        )
-      );
-    }
-    
-    if (currentDashboard && currentDashboard.id === dashboardId) {
-      setCurrentDashboard({
-        ...currentDashboard,
-        charts: currentDashboard.charts.filter(chart => chart.id !== chartId),
-        updatedAt: new Date()
-      });
-    }
-    
-    toast({
-      title: "Chart Removed",
-      description: "Chart has been removed from the dashboard.",
-    });
-  };
-
-  const toggleChartWidth = (dashboardId: string, chartId: string) => {
-    const isCustom = allCustomDashboards.some(d => d.id === dashboardId);
-    
-    if (isCustom) {
-      setCustomDashboards(prevDashboards =>
-        prevDashboards.map(dashboard =>
-          dashboard.id === dashboardId
-            ? { 
-                ...dashboard, 
-                charts: dashboard.charts.map(chart => 
-                  chart.id === chartId 
-                    ? { ...chart, isFullWidth: !chart.isFullWidth }
-                    : chart
-                ),
-                updatedAt: new Date()
-              }
-            : dashboard
-        )
-      );
-    } else {
-      setSystemDashboards(prevDashboards =>
-        prevDashboards.map(dashboard =>
-          dashboard.id === dashboardId
-            ? { 
-                ...dashboard, 
-                charts: dashboard.charts.map(chart => 
-                  chart.id === chartId 
-                    ? { ...chart, isFullWidth: !chart.isFullWidth }
-                    : chart
-                ),
-                updatedAt: new Date()
-              }
-            : dashboard
-        )
-      );
-    }
-    
-    if (currentDashboard && currentDashboard.id === dashboardId) {
-      setCurrentDashboard({
-        ...currentDashboard,
-        charts: currentDashboard.charts.map(chart => 
-          chart.id === chartId 
-            ? { ...chart, isFullWidth: !chart.isFullWidth }
-            : chart
-        ),
-        updatedAt: new Date()
-      });
-    }
-  };
-
-  const saveChart = (chart: Chart, options: SaveChartOptions) => {
-    if (options.saveType === 'analysisOnly') {
-      toast({
-        title: "Analysis Saved",
-        description: "Your analysis has been saved for later use.",
-      });
-      return;
-    }
-    
-    if (options.saveType === 'saveAndPin' && options.dashboardId) {
-      addChart(options.dashboardId, chart);
-      toast({
-        title: "Analysis Pinned",
-        description: `Your analysis has been added to the dashboard.`,
-      });
-      return;
-    }
-    
-    if (options.saveType === 'saveAsNew') {
-      const newChart = {
-        ...chart,
-        id: `${chart.id}-copy-${Date.now()}`,
-        title: `${chart.title} (Copy)`,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      
-      toast({
-        title: "New Analysis Created",
-        description: "A new copy of the analysis has been created.",
-      });
-      
-      if (options.dashboardId) {
-        addChart(options.dashboardId, newChart);
-      }
-    }
-  };
-
-  const updateChartOrder = (dashboardId: string, reorderedCharts: Chart[]) => {
-    const isCustom = allCustomDashboards.some(d => d.id === dashboardId);
-    
-    if (isCustom) {
-      setCustomDashboards(prevDashboards =>
-        prevDashboards.map(dashboard =>
-          dashboard.id === dashboardId
-            ? { ...dashboard, charts: reorderedCharts, updatedAt: new Date() }
-            : dashboard
-        )
-      );
-    } else {
-      setSystemDashboards(prevDashboards =>
-        prevDashboards.map(dashboard =>
-          dashboard.id === dashboardId
-            ? { ...dashboard, charts: reorderedCharts, updatedAt: new Date() }
-            : dashboard
-        )
-      );
-    }
-    
-    if (currentDashboard && currentDashboard.id === dashboardId) {
-      setCurrentDashboard({
-        ...currentDashboard,
-        charts: reorderedCharts,
-        updatedAt: new Date()
-      });
-    }
-  };
-
-  const createDashboard = (name: string) => {
+  const createDashboard = (name: string): Dashboard => {
     const newDashboard: Dashboard = {
       id: `dashboard-${Date.now()}`,
       name,
       type: 'custom',
       charts: [],
+      isPinned: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
-
+    
     setCustomDashboards(prev => [...prev, newDashboard]);
     setCurrentDashboard(newDashboard);
-    
+    setCurrentView('dashboard');
     return newDashboard;
   };
 
-  const deleteDashboard = (dashboardId: string) => {
-    const dashboardToDelete = allCustomDashboards.find(d => d.id === dashboardId);
+  const renameDashboard = (id: string, name: string) => {
+    setCustomDashboards(prev => 
+      prev.map(dashboard => 
+        dashboard.id === id ? { ...dashboard, name, updatedAt: new Date() } : dashboard
+      )
+    );
+  };
+
+  const deleteDashboard = (id: string) => {
+    setCustomDashboards(prev => prev.filter(dashboard => dashboard.id !== id));
     
-    if (dashboardToDelete) {
-      setCustomDashboards(prev => prev.filter(d => d.id !== dashboardId));
-      
-      if (currentDashboard?.id === dashboardId) {
-        const firstAvailable = allSystemDashboards[0] || allCustomDashboards.find(d => d.id !== dashboardId);
-        setCurrentDashboard(firstAvailable || null);
+    // If the current dashboard is deleted, set the first system dashboard as current
+    if (currentDashboard?.id === id) {
+      setCurrentDashboard(systemDashboards[0]);
+    }
+  };
+
+  const togglePinDashboard = (id: string) => {
+    setCustomDashboards(prev => 
+      prev.map(dashboard => 
+        dashboard.id === id 
+          ? { ...dashboard, isPinned: !dashboard.isPinned, updatedAt: new Date() } 
+          : dashboard
+      )
+    );
+  };
+
+  const saveChart = (chart: Chart, options: SaveChartOptions) => {
+    const { saveType, dashboardId, newDashboardName } = options;
+    
+    if (saveType === 'saveAndPin') {
+      if (dashboardId) {
+        // Add chart to existing dashboard
+        setCustomDashboards(prev => 
+          prev.map(dashboard => 
+            dashboard.id === dashboardId 
+              ? { 
+                  ...dashboard, 
+                  charts: [...dashboard.charts, { ...chart, id: `chart-${Date.now()}` }],
+                  updatedAt: new Date()
+                } 
+              : dashboard
+          )
+        );
+      } else if (newDashboardName) {
+        // Create new dashboard and add chart
+        const newDashboard: Dashboard = {
+          id: `dashboard-${Date.now()}`,
+          name: newDashboardName,
+          type: 'custom',
+          charts: [{ ...chart, id: `chart-${Date.now()}` }],
+          isPinned: false,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        
+        setCustomDashboards(prev => [...prev, newDashboard]);
+        setCurrentDashboard(newDashboard);
+        setCurrentView('dashboard');
       }
     }
   };
@@ -328,22 +128,20 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   return (
     <DashboardContext.Provider
       value={{
-        systemDashboards: allSystemDashboards,
-        customDashboards: allCustomDashboards,
+        systemDashboards,
+        customDashboards,
+        filteredDashboards,
         currentDashboard,
-        setCurrentDashboard,
+        currentView,
         searchQuery,
+        setCurrentDashboard,
+        setCurrentView,
         setSearchQuery,
-        filteredDashboards: sortedFilteredDashboards,
-        togglePinDashboard,
-        renameDashboard,
-        addChart,
-        removeChart,
-        toggleChartWidth,
-        saveChart,
-        updateChartOrder,
         createDashboard,
-        deleteDashboard
+        renameDashboard,
+        deleteDashboard,
+        togglePinDashboard,
+        saveChart
       }}
     >
       {children}
@@ -353,7 +151,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
 export const useDashboard = () => {
   const context = useContext(DashboardContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useDashboard must be used within a DashboardProvider');
   }
   return context;

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { useDashboard } from '@/contexts/DashboardContext';
 import ChartCard from './ChartCard';
@@ -10,9 +11,14 @@ import CreateDashboardModal from './CreateDashboardModal';
 import SubscriptionModal from './SubscriptionModal';
 import SystemDashboardHeader from './SystemDashboardHeader';
 import CustomDashboardHeader from './CustomDashboardHeader';
+import InsightGenerator from '@/components/insight/InsightGenerator';
 
 const Dashboard: React.FC = () => {
-  const { currentDashboard, renameDashboard } = useDashboard();
+  const { 
+    currentDashboard, 
+    renameDashboard,
+    currentView 
+  } = useDashboard();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [saveModalOpen, setSaveModalOpen] = useState(false);
@@ -95,6 +101,15 @@ const Dashboard: React.FC = () => {
     });
     setSaveModalOpen(true);
   };
+
+  // Show Insight Generator when selected
+  if (currentView === 'insightGenerator') {
+    return (
+      <div className="flex-1">
+        <InsightGenerator />
+      </div>
+    );
+  }
 
   if (!currentDashboard) {
     return (
